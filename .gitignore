@@ -1,0 +1,9 @@
+/writable/cache/*
+/writable/logs/*
+/writable/session/*
+/writable/uploads/*
+!.gitkeep
+/.env
+/.phpunit.result.cache
+.DS_Store
+**/.DS_Store

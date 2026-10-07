@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Controllers;
+
+class Contact extends BaseController
+{
+    public function index(): string|\CodeIgniter\HTTP\RedirectResponse
+    {
+        $data = [
+            'title' => 'Contact Us - PowerFlow Electric',
+            'page' => 'contact',
+            'success' => session()->getFlashdata('success'),
+            'error' => session()->getFlashdata('error'),
+            'validation' => session()->getFlashdata('validation'),
+        ];
+
+        if (strtolower($this->request->getMethod()) === 'post') {
+            return $this->submitForm();
+        }
+
+        return view('contact', $data);
+    }
+
+    private function submitForm(): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'name' => 'required|min_length[2]|max_length[100]',
+            'email' => 'required|valid_email',
+            'phone' => 'required|min_length[10]|max_length[20]',
+            'service_type' => 'required',
+            'message' => 'required|min_length[10]|max_length[1000]',
+        ]);
+
+        if (! $validation->withRequest($this->request)->run()) {
+            session()->setFlashdata('validation', $validation->getErrors());
+            return redirect()->back()->withInput();
+        }
+
+        $contactData = [
+            'name' => $this->request->getPost('name'),
+            'email' => $this->request->getPost('email'),
+            'phone' => $this->request->getPost('phone'),
+            'service_type' => $this->request->getPost('service_type'),
+            'message' => $this->request->getPost('message'),
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+
+        session()->setFlashdata('success', 'Thank you for your message! We will contact you within 24 hours.');
+        return redirect()->to(base_url('contact'));
+    }
+}
